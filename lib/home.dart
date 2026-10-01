@@ -13,36 +13,42 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-
-import 'model/product.dart';
-import 'model/products_repository.dart';
 import 'supplemental/asymmetric_view.dart';
 
-class HomePage extends StatelessWidget {
+import 'backdrop.dart';
+import 'category_menu_page.dart';
+import 'model/product.dart';
+import 'model/products_repository.dart';
+
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Category _currentCategory = Category.all;
+
+  void _onCategoryTap(Category category) {
+    setState(() {
+      _currentCategory = category;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {},
-          tooltip: 'Menu',
-        ),
-        title: const Text('SHRINE'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-            tooltip: 'Search',
-          ),
-        ],
+    return Backdrop(
+      currentCategory: _currentCategory,
+      frontLayer: AsymmetricView(
+        products: ProductsRepository.loadProducts(_currentCategory),
       ),
-      body: AsymmetricView(
-        products: ProductsRepository.loadProducts(Category.all),
+      backLayer: CategoryMenuPage(
+        currentCategory: _currentCategory,
+        onCategoryTap: _onCategoryTap,
       ),
-      resizeToAvoidBottomInset: false,
+      frontTitle: const Text('SHRINE'),
+      backTitle: const Text('MENU'),
     );
   }
 }
